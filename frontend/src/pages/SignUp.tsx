@@ -2,6 +2,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import authBg from "../assets/authBackground.jpg";
+import logo from "../assets/Logo.svg";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -24,81 +26,125 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      //Sends a POST request to the backend API with the formData.
       const response = await axios.post(
         "http://localhost:5000/api/auth/signup",
         formData
       );
-      //Stores the JWT token received from the backend in the browser's localStorage for authentication purposes.
+
+      // Store token & user data in localStorage
       localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user details
+
+      const { role } = response.data.user;
+      if (role === "admin") {
+        navigate("/home");
+      } else {
+        navigate("/student-home");
+      }
     } catch (error) {
       console.error("Signup Error", error);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-screen h-screen bg-gray-100 bg-cover bg-center auth-bg">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md w-96"
-      >
-        <h2 className="text-2xl font-semibold mb-4">Sign Up</h2>
+    <div
+      className="flex flex-col justify-center w-screen h-screen bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: `url(${authBg})` }}
+    >
+      {/* Overlay for opacity */}
+      <div className="absolute inset-0 bg-black opacity-30"></div>
 
-        {/* Name */}
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          onChange={handleChange}
-          className="border p-2 w-full mb-2 rounded"
-          required
-        />
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Logo */}
+        <div className="w-[150px] h-20 fixed top-[40px] left-[80px]">
+          <img className="w-full h-full object-contain" alt="Logo" src={logo} />
+        </div>
 
-        {/* Email */}
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          className="border p-2 w-full mb-2 rounded"
-          required
-        />
+        {/* Form */}
+        <div className="flex justify-center items-center ">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-background dark:bg-Dbackground p-20 rounded-3xl flex flex-col items-center"
+          >
+            <div className="flex flex-col items-center w-full">
+              {/* Form heading */}
+              <h2 className="text-primary dark:text-primary text-2xl font-semibold mb-4">
+                Sign Up To CampusHub
+              </h2>
 
-        {/* Password*/}
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          className="border p-2 w-full mb-2 rounded"
-          required
-        />
-        {/* Role dropdown */}
-        <label
-          htmlFor="role"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Role
-        </label>
-        <select
-          id="role"
-          name="role"
-          onChange={handleChange}
-          className="border p-2 w-full mb-2 rounded"
-        >
-          <option value="student">Student</option>
-          <option value="admin">Admin</option>
-        </select>
+              {/* Input fields wrapper */}
+              <div className="flex flex-col items-center justify-center w-full">
+                {/* Name */}
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  onChange={handleChange}
+                  className="border p-2 w-full mb-2 rounded"
+                  required
+                />
 
-        {/* Submit button */}
-        <button
-          type="submit"
-          className="bg-blue-500 text-white p-2 rounded w-full"
-        >
-          Sign Up
-        </button>
-      </form>
+                {/* Email */}
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  onChange={handleChange}
+                  className="border p-2 w-full mb-2 rounded"
+                  required
+                />
+
+                {/* Password */}
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  onChange={handleChange}
+                  className="border p-2 w-full mb-2 rounded"
+                  required
+                />
+              </div>
+
+              {/* Role label + Dropdown */}
+              <div className="flex flex-col w-full">
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-medium text- mb-1 text-left"
+                >
+                  Role
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  onChange={handleChange}
+                  className="border p-2 w-full mb-2 rounded"
+                >
+                  <option value="student">Student</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              {/* Submit button */}
+              <button
+                type="submit"
+                className="bg-primary dark:bg-Dprimary text-background dark:text-Dbackground px-[115px] py-[10px] rounded-xl font-medium font-body"
+              >
+                Sign Up
+              </button>
+            </div>
+            <p className="text-text dark:text-Dtext mt-4">
+              Already have an account?{" "}
+              <a
+                className="underline decoration-accent dark:decoration-Daccent"
+                onClick={() => navigate("/signin")}
+              >
+                Sign-in
+              </a>
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

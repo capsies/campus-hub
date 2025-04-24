@@ -19,6 +19,18 @@ const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/auth", authRoutes);
 
+//Import Club routes-student
+const clubRoutes = require("./routes/clubs");
+app.use("/api/clubs", clubRoutes);
+
+app.use("/uploads", express.static("public/uploads"));
+
+app.use("/uploads", express.static("public/uploads"));
+
+// Import Event routes-student
+const eventRoutes = require("./routes/Events");
+app.use("/api/events", eventRoutes);
+
 // Simple test route
 app.get('/', (req, res) => {
     res.send('Campus Hub API is running...this will be the home page');

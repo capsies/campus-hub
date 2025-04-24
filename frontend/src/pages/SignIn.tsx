@@ -6,78 +6,110 @@ import authBg from "../assets/authBackground.jpg";
 import logo from "../assets/Logo.svg";
 
 const SignIn = () => {
-  const navigate = useNavigate(); // Hook to navigate to different routes
+  const navigate = useNavigate(); // Hook to navigate between routes
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  //Function to handle input changes and update the formData state
+  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Function to handle form submission
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevents the default form submission behavior (page reload)
+    e.preventDefault();
     try {
-      // Sends a POST request to the backend API with the formData
       const response = await axios.post(
-        "http://localhost:5000/api/auth/signin", // Backend API endpoint
-        formData // Data to be sent as the request body
+        "http://localhost:5000/api/auth/signin",
+        formData
       );
-      // Store the JWT token received from the backend in localStorage
+
+      // Store token & user data in localStorage
       localStorage.setItem("token", response.data.token);
-      // Navigate to the dashboard route after successful login
-      navigate("/dashboard");
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user details
+
+      const { role } = response.data.user;
+
+      if (role === "admin") {
+        navigate("/home");
+      } else {
+        navigate("/student-home");
+      }
     } catch (error) {
       console.error("Sign-in Error", error);
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        navigate("/signup");
+      }
     }
   };
 
   return (
     <div
-      className="flex flex-col items-center justify-center w-screen h-screen bg-cover bg-center bg-fixed"
+      className="flex flex-col justify-center w-screen h-screen bg-cover bg-center bg-fixed"
       style={{ backgroundImage: `url(${authBg})` }}
     >
-      {/* Overlay for opacity */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black opacity-30"></div>
 
       {/* Content */}
       <div className="relative z-10">
-        <img alt="Logo" src={logo} />
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-lg shadow-md w-96"
-        >
-          {/* Form heading */}
-          <h2 className="text-2xl font-semibold mb-4">Sign In</h2>
+        {/* Logo */}
+        <div className="w-[150px] h-20 fixed top-[40px] left-[80px]">
+          <img className="w-full h-full object-contain" alt="Logo" src={logo} />
+        </div>
 
-          {/* Email input field */}
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            className="border p-2 w-full mb-2 rounded"
-            required
-          />
-
-          {/* Password input field */}
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="border p-2 w-full mb-2 rounded"
-            required
-          />
-
-          {/* Sign In button */}
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded w-full"
+        {/* Form */}
+        <div className="flex justify-center items-center">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-background dark:bg-Dbackground p-20 rounded-3xl flex flex-col items-center"
           >
-            Sign In
-          </button>
-        </form>
+            <div className="flex flex-col items-center">
+              {/* Form heading */}
+              <h2 className="text-primary dark:text-primary text-2xl font-semibold mb-4">
+                Sign In To CampusHub
+              </h2>
+
+              {/* Email */}
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                onChange={handleChange}
+                className="border p-2 w-full mb-2 rounded"
+                required
+              />
+
+              {/* Password */}
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                onChange={handleChange}
+                className="border p-2 w-full mb-2 rounded"
+                required
+              />
+
+              {/* Sign In button */}
+              <button
+                type="submit"
+                className="bg-primary dark:bg-Dprimary text-background dark:text-Dbackground px-[115px] py-[10px] rounded-xl font-medium font-body"
+              >
+                Sign In
+              </button>
+            </div>
+
+            {/* Sign-up link */}
+            <p className="text-text dark:text-Dtext mt-4">
+              Don't have an account?{" "}
+              <a
+                className="underline decoration-accent dark:decoration-Daccent cursor-pointer"
+                onClick={() => navigate("/signup")}
+              >
+                Sign-up
+              </a>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
